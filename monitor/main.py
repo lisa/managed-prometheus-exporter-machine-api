@@ -35,7 +35,7 @@ def collect(dynamic_client, namespace):
         ACTIVE_MACHINES.add(machine['metadata']['name'])
 
         value = 1
-        if not 'status' in machine.keys() or not 'nodeRef' in machine['status'].keys():
+        if not 'status' in list(machine.keys()) or not 'nodeRef' in list(machine['status'].keys()):
             value = 0
 
         MACHINE_STATUS.labels(
@@ -51,7 +51,7 @@ def collect(dynamic_client, namespace):
             machine_name = inactive_machine,
             namespace = namespace
         )
-        
+
         ACTIVE_MACHINES.remove(inactive_machine)
 
 if __name__ == "__main__":

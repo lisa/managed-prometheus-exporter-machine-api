@@ -18,9 +18,9 @@ SOURCE_CONFIGMAP_SUFFIX ?= -code
 CREDENITALS_SUFFIX ?= -aws-credentials
 
 MAIN_IMAGE_URI ?= quay.io/openshift-sre/managed-prometheus-exporter-base
-IMAGE_VERSION ?= 0.1.3-5a0899dd
-INIT_IMAGE_URI ?= quay.io/lseelye/yq-kubectl
-INIT_IMAGE_VERSION ?= 1903.0.0
+IMAGE_VERSION ?= latest
+INIT_IMAGE_URI ?= quay.io/openshift-sre/managed-prometheus-exporter-initcontainer
+INIT_IMAGE_VERSION ?= latest
 
 # Generate variables
 
@@ -49,7 +49,7 @@ deploy/025_sourcecode.yaml: $(SOURCEFILES) Makefile
 	@for sfile in $(SOURCEFILES); do \
 		files="--from-file=$$sfile $$files" ; \
 	done ; \
-	kubectl -n openshift-monitoring create configmap $(SOURCE_CONFIGMAP_NAME) --dry-run=true -o yaml $$files 1> deploy/025_sourcecode.yaml
+	oc -n openshift-monitoring create configmap $(SOURCE_CONFIGMAP_NAME) --dry-run=client -o yaml $$files 1> $@
 
 deploy/040_deployment.yaml: resources/040_deployment.yaml.tmpl Makefile $(SOURCEFILES)
 	@$(call generate_file,040_deployment)

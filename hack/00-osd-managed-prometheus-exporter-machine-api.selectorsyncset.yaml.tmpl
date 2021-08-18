@@ -39,7 +39,7 @@ objects:
         template:
           metadata:
             annotations:
-              managed.openshift.io/exporter_source_code_hash: 72e6dfeaabb891ca7875db6e184388b38141bc7ffb8e1944ed729174d738951e
+              managed.openshift.io/exporter_source_code_hash: 51640575f32c3efd32c857d2eaa9f445ba3e97035a140ad2fb306fcf1ee6a4da
             labels:
               name: sre-machine-api-status-exporter
             name: sre-machine-api-status-exporter
@@ -59,7 +59,7 @@ objects:
               env:
               - name: MACHINE_NAMESPACE
                 value: openshift-machine-api
-              image: quay.io/openshift-sre/managed-prometheus-exporter-base:0.1.3-5a0899dd
+              image: quay.io/openshift-sre/managed-prometheus-exporter-base:latest
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 2
@@ -147,15 +147,15 @@ objects:
           the API\n    seen_machines = Set([])\n    machines = get_machines(dynamic_client,
           namespace)\n    for machine in machines:\n        seen_machines.add(machine['metadata']['name'])\n
           \       ACTIVE_MACHINES.add(machine['metadata']['name'])\n\n        value
-          = 1\n        if not 'status' in machine.keys() or not 'nodeRef' in machine['status'].keys():\n
-          \           value = 0\n\n        MACHINE_STATUS.labels(\n            machine_name
-          = machine['metadata']['name'],\n            namespace = namespace\n        ).set(value)\n\n
-          \   logging.debug(\"Have %d ACTIVE_MACHINES, seen %d machines, total machines
-          from list_metrics %d\",len(ACTIVE_MACHINES),len(seen_machines),len(machines))\n
+          = 1\n        if not 'status' in list(machine.keys()) or not 'nodeRef' in
+          list(machine['status'].keys()):\n            value = 0\n\n        MACHINE_STATUS.labels(\n
+          \           machine_name = machine['metadata']['name'],\n            namespace
+          = namespace\n        ).set(value)\n\n    logging.debug(\"Have %d ACTIVE_MACHINES,
+          seen %d machines, total machines from list_metrics %d\",len(ACTIVE_MACHINES),len(seen_machines),len(machines))\n
           \   for inactive_machine in ACTIVE_MACHINES - seen_machines:\n        logging.info(\"Removing
           machine_api_status{machine_name='%s'} from Prometheus \",inactive_machine)\n\n
           \       MACHINE_STATUS.remove(\n            machine_name = inactive_machine,\n
-          \           namespace = namespace\n        )\n        \n        ACTIVE_MACHINES.remove(inactive_machine)\n\nif
+          \           namespace = namespace\n        )\n\n        ACTIVE_MACHINES.remove(inactive_machine)\n\nif
           __name__ == \"__main__\":\n    logging.basicConfig(level=logging.INFO, format='%(asctime)s
           %(levelname)s:%(name)s:%(message)s')\n\n    namespace = \"openshift-machine-api\"\n
           \   if \"MACHINE_NAMESPACE\" in os.environ:\n        namespace = os.getenv(\"MACHINE_NAMESPACE\")\n\n
